@@ -331,30 +331,32 @@ class Up(BaseModel):
                     v = SendGiftV2()
                     v.ParseFromString(rawData)
                     base = {
-                        "giftId": v.gift.gift_id,
-                        "giftName": v.gift.gift_name,
-                        "uid": v.sender.uid,
-                        "num": v.gift.num,
-                        "total_coin": v.gift.discount_price,
-                        "discount_price": v.gift.total_coin,
-                        'blind_gift': None
-                    }
-                    if v.HasField("blind"):
-                        base['blind_gift'] = {
-                            "original_gift_id": v.blind.original_gift_id,
-                            "original_gift_name": v.blind.original_gift_name,
-                            "blind_price": v.blind.blind_price,
+                    for gift in v.gifts:
+                        base = {
+                            "giftId": gift.gift_id,
+                            "giftName": gift.gift_name,
+                            "uid": v.sender.uid,
+                            "num": gift.num,
+                            "total_coin": gift.total_coin,
+                            "discount_price": gift.discount_price,
+                            'blind_gift': None
                         }
-                    newEvent = {
-                        'room_display_id': event.get("room_display_id", ),
-                        'room_real_id': event.get("room_real_id", ),
-                        'data': {
-                            "data": base,
-                            "cmd": 'SEND_GIFT',
-                        },
-                        'type': 'SEND_GIFT',
-                    }
-                    self.dispatch('SEND_GIFT', newEvent)
+                        if v.HasField("blind"):
+                            base['blind_gift'] = {
+                                "original_gift_id": v.blind.original_gift_id,
+                                "original_gift_name": v.blind.original_gift_name,
+                                "blind_price": v.blind.blind_price,
+                            }
+                        newEvent = {
+                            'room_display_id': event.get("room_display_id", ),
+                            'room_real_id': event.get("room_real_id", ),
+                            'data': {
+                                "data": base,
+                                "cmd": 'SEND_GIFT',
+                            },
+                            'type': 'SEND_GIFT',
+                        }
+                        self.dispatch('SEND_GIFT', newEvent)
 
                 except Exception as ex:
                     logger.exception("SEND_GIFT_V2异常", ex)
