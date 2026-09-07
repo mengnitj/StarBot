@@ -330,7 +330,6 @@ class Up(BaseModel):
                     rawData = base64.b64decode(pb)
                     v = SendGiftV2()
                     v.ParseFromString(rawData)
-                    base = {
                     for gift in v.gifts:
                         base = {
                             "giftId": gift.gift_id,
